@@ -17,8 +17,9 @@ exports.request_query = async(req,res,next)=>{
             // model: "gemini-2.5-flash",
             contents:[{text:prompt}],
         });
+       
         // console.log(response.text);
-         const responseText = await response[0]?.content?.parts?.[0].text || "No";
+         const responseText = response?.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini";
 
         res.status(200).json({
             success: true,
@@ -29,15 +30,14 @@ exports.request_query = async(req,res,next)=>{
    } 
 }
 
-exports.sendingpdf = async(req,res)=>{
+exports.sendingpdf = async(req,res,next)=>{
     try{
-    async function main() {
      if (!req.file) {
             throw new ApiError(400, 'No file uploaded');
         }
 
         const buffer = req.file.buffer;
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINIAPIKEY});
+        const ai = new genAI.GoogleGenAI({ apiKey: process.env.GEMINIAPIKEY});
 
     const contents = [
         { text: "Summarize this document" },
@@ -55,16 +55,14 @@ exports.sendingpdf = async(req,res)=>{
         contents: contents
     });
     // console.log(response.text);
-    const result = await response.response.text();
+    const result = response?.candidates?.[0]?.content?.parts?.[0]?.text || "No summary generated";
 
         res.status(200).json({
             success: true,
             summary: result
         });
 
-}
 
-main();
     }
     catch(e){
         next(e instanceof ApiError ? e : new ApiError(500, e.message, e.stack));
@@ -76,18 +74,18 @@ main();
 
 exports.sendingimage = async(req,res)=>{
     try{
-    async function main() {
+    
      if (!req.file) {
             throw new ApiError(400, 'No file uploaded');
         }
 
         const buffer = req.file.buffer;
-        // const ai = new GoogleGenAI({ apiKey: process.env.GEMINIAPIKEY});
 
-    const ai = new GoogleGenAI({});
-    const base64ImageFile = fs.readFileSync(buffer, {
-      encoding: "base64",
+    const ai = new genAI.GoogleGenAI({
+        apiKey:process.env.GEMINIAPIKEY
     });
+    const base64ImageFile = buffer.toString("base64");
+    
 
     const contents = [
       {
@@ -104,16 +102,13 @@ exports.sendingimage = async(req,res)=>{
             contents: contents,
     });
     // console.log(response.text);
-    const result = await response.text();
+    const result = response?.candidates?.[0]?.content?.parts?.[0]?.text || "No summary generated";
 
         res.status(200).json({
             success: true,
             summary: result
         });
 
-}
-
-main();
     }
     catch(e){
         next(e instanceof ApiError ? e : new ApiError(500, e.message, e.stack));

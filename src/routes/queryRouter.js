@@ -6,6 +6,6 @@ const upload = require("../middelwares/multer");
 
 queryRouter.post('/textserch',queryController.request_query);
 queryRouter.post('/pdfsummary',upload.single('file'),queryController.sendingpdf);
-queryRouter.post('/textserch',upload.single('file'),queryController.sendingimage);
+queryRouter.post('/imageserch',upload.single('file'),queryController.sendingimage);
 
 module.exports = queryRouter;
